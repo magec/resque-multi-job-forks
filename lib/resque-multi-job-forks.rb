@@ -69,8 +69,6 @@ module Resque
 
     def hijack_fork
       log 'hijack fork.'
-      @suppressed_fork_hooks = [Resque.after_fork, Resque.before_fork]
-      Resque.after_fork = Resque.before_fork = nil
       @release_fork_limit = fork_job_limit
       @jobs_processed = 0
       @cant_fork = true
@@ -80,7 +78,6 @@ module Resque
     def release_fork
       log "jobs processed by child: #{jobs_processed}"
       run_hook :before_child_exit, self
-      Resque.after_fork, Resque.before_fork = *@suppressed_fork_hooks
       @release_fork_limit = @jobs_processed = @cant_fork = nil
       log 'hijack over, counter terrorists win.'
       @shutdown = true unless $TESTING
